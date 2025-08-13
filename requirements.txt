@@ -1,0 +1,8 @@
+yfinance
+pandas
+openpyxl
+streamlit
+pandas
+python-dotenv
+langchain
+langchain-groq
