@@ -2,42 +2,64 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import os
-from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 
-# Load environment variables
-load_dotenv()
-groq_api_key = os.getenv("GROQ_API_KEY")
+# ------------------ Secure API Key from DB ------------------
+def get_api_key_from_db(conn, service="groq"):
+    try:
+        result = conn.execute("SELECT api_key FROM api_keys WHERE service = ?", (service,)).fetchone()
+        if result:
+            return result[0]
+        else:
+            raise ValueError(f"{service.upper()} API key not found in database.")
+    except Exception as e:
+        st.error(f"🔐 Database error loading API key: {e}")
+        return None
+
 
 # Connect to SQLite database
-conn = sqlite3.connect("db/stock_data.db")
+try:
+    conn = sqlite3.connect("db/stock_data.db", check_same_thread=False)
+except Exception as e:
+    st.error(f"❌ Failed to connect to database: {e}")
+    st.stop()
+
+# Load Groq API key from database (not .env)
+groq_api_key = get_api_key_from_db(conn, "groq")
+if not groq_api_key:
+    st.error("❌ No Groq API key found in database. Please add it to the `api_keys` table.")
+    st.stop()
 
 # LLM setup
-llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama3-8b-8192")
+try:
+    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama3-8b-8192")
+except Exception as e:
+    st.error(f"❌ Failed to initialize LLM: {e}")
+    st.stop()
 
-# Few-shot examples (include various prompt phrasings)
+# ------------------ Few-shot Examples ------------------
 examples = [
     {
-        "question": "What is the average closing price of TCS in August 2015?",
+        "question": "What is the average closing price of TCS in July 2025?",
         "sql": """SELECT AVG(Close) AS avg_close
 FROM stock_data
 WHERE Stock = 'TCS.NS'
-  AND substr(Date, 1, 7) = '2015-08';"""
+  AND substr(Date, 1, 7) = '2025-07';"""
     },
     {
-        "question": "What is the Open price of TCS on 3rd August 2025?",
+        "question": "What is the Open price of TCS on 31st July August 2025?",
         "sql": """SELECT Open
 FROM stock_data
 WHERE Stock = 'TCS.NS'
-  AND substr(Date, 1, 10) = '2025-08-03';"""
+  AND substr(Date, 1, 10) = '2025-07-31';"""
     },
     {
-        "question": "Show all data for TCS on 3rd August 2015",
+        "question": "Show all data for TCS on 31st July 2025",
         "sql": """SELECT *
 FROM stock_data
 WHERE Stock = 'TCS.NS'
-  AND substr(Date, 1, 10) = '2015-08-03';"""
+  AND substr(Date, 1, 10) = '2025-07-31';"""
     },
     {
         "question": "Show monthly average closing price of HDFCBANK",
@@ -167,19 +189,16 @@ trend_summary AS (
         END AS predominant_trend
     FROM monthly_trend
     GROUP BY month, stock_symbol
-    ORDER BY month;
+    ORDER BY month
 )
 SELECT * FROM trend_summary;"""
     }
 ]
 
-
 # Dynamically construct few-shot prompt
 prompt_examples = "\n\n---\n\n".join(
     f"Question: {ex['question']}\nSQL:\n{ex['sql']}" for ex in examples
 )
-
-# LangChain prompt template
 
 prompt_template = f"""
 You are an expert SQLite SQL generator for stock market time-series data.
@@ -201,17 +220,16 @@ Question: {{question}}
 SQL:
 """
 
-
 prompt = PromptTemplate(input_variables=["question"], template=prompt_template)
 chain = prompt | llm
 
-# ------------------ Streamlit Layout ------------------
+# ------------------ Streamlit UI ------------------
 st.set_page_config(page_title="📈 Stock AI", layout="wide")
-st.title("TradeShala AI")
+st.title("Stock.AI")
 
-# Sidebar: few-shot prompt explorer
+# Sidebar: Example selector
 with st.sidebar:
-    st.subheader("Examples")
+    st.subheader("Helpers")
     if "selected_example" not in st.session_state:
         st.session_state.selected_example = ""
 
@@ -222,33 +240,28 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("👆 Click an example to autofill")
 
-# Text input box
-user_input = st.text_input("🧠 Ask a Your Query:", value=st.session_state.get("selected_example", ""))
+# Input
+user_input = st.text_input("🧠 Ask a Query:", value=st.session_state.get("selected_example", ""))
 
 if user_input:
-    with st.spinner("💬 Generating SQL from your question..."):
-        result = chain.invoke({"question": user_input})
+    with st.spinner("💬 Generating SQL..."):
+        try:
+            result = chain.invoke({"question": user_input})
+            sql_query = result.content.strip()
+        except Exception as e:
+            st.error(f"❌ Failed to generate SQL: {e}")
+            st.stop()
 
-    sql_query = result.content.strip()
-    
-    # Display SQL
-    with st.expander("🧪 Preview Generated SQL"):
-        st.code(sql_query, language="sql")
-
-    # Safeguard before running
-    if not sql_query.lower().strip().startswith("select") and "with" not in sql_query.lower():
-        st.error("❌ Generated SQL does not seem valid. Please refine your question.")
+    # Validate SQL
+    if not sql_query.lower().startswith("select") and "with" not in sql_query.lower():
+        st.error("❌ Only SELECT queries are allowed.")
     else:
         try:
             df = pd.read_sql_query(sql_query, conn)
             if df.empty:
                 st.warning("⚠️ No results found.")
             else:
-                st.success("✅ Query executed successfully!")
+                st.success("✅ Data retrieved successfully!")
                 st.dataframe(df, use_container_width=True)
-
-                # Optional: download result
-                # csv = df.to_csv(index=False).encode("utf-8")
-                # st.download_button("📥 Download CSV", data=csv, file_name="result.csv", mime="text/csv")
         except Exception as e:
             st.error(f"❌ SQL Execution Error:\n\n{e}")
