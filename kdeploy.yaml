@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stockagent-deployment
+  labels:
+    app: stockagent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stockagent
+  template:
+    metadata:
+      labels:
+        app: stockagent
+    spec:
+      containers:
+      - name: stockagent
+        image: akhilbmenon/tradeshala.ai:latest
+        ports:
+        - containerPort: 8501
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stockagent-service
+  labels:
+    app: stockagent
+spec:
+  selector:
+    app: stockagent
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8501
+    nodePort: 30001 
+  type: NodePort
