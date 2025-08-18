@@ -17,6 +17,7 @@ spec:
       containers:
       - name: stockagent
         image: akhilbmenon/tradeshala.ai:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8501
         resources:
