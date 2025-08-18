@@ -9,6 +9,7 @@ def fetch_stock_data(symbol, period='10y'):
     #stock = yf.Ticker(symbol)
     #df = stock.history(period=period)
     #return hist
+    '''
     if df.empty:
         return None
     df['Symbol'] = symbol
@@ -17,6 +18,7 @@ def fetch_stock_data(symbol, period='10y'):
     df['Month'] = df.index.to_series().dt.strftime('%Y-%m')
     df['Change'] = df['Close'].diff()
     df['Trend'] = df['Change'].apply(lambda x: 'up' if x > 0 else 'down' if x < 0 else 'no change')
+    '''
     return df
 
 def analyze_all_stocks(symbols):
