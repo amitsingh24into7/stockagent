@@ -28,7 +28,6 @@ except Exception as e:
 # Load Groq API key from database (not .env)
 groq_api_key = get_api_key_from_db(conn, "groq")
 
-print(groq_api_key)
 if not groq_api_key:
     st.error("❌ No Groq API key found in database. Please add it to the `api_keys` table.")
     st.stop()
