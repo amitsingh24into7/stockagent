@@ -8,9 +8,7 @@ EXCEL_FILE = "data/ind_nifty500list.xlsx"  # Your Excel file
 SHEET_NAME = "Sheet1"  # Update if needed
 COLUMN_NAME = "FinalSymbol"  # Column name in Excel file
 TIMEFRAMES = {
-    "day": "1d",
-    "week": "1wk",
-    "month": "1mo"
+    "day": "1d"
 }
 
 # Ensure folders exist

@@ -12,6 +12,7 @@ def main():
     symbols = load_symbols(symbol_file)
 
     data = analyze_all_stocks(symbols)
+    '''
     data.to_csv("output/full_stock_data.csv", index=False)
 
     month_summary = get_trend_summary(data, 'Month')
@@ -30,6 +31,7 @@ def main():
 
     print("\n📊 TCS.NS on 2023-07-24:")
     print(query_stock_by_trend(day_summary, 'TCS.NS', '2023-07-24', 'Day'))
+    '''
 
 if __name__ == "__main__":
     main()

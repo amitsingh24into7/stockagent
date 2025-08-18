@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: stockagent
-        image: akhilbmenon/tradeshala.ai:latest
+        image: akhilbmenon/tradeshala.ai:${BUILD_NUMBER}   # Jenkins replaces this
         imagePullPolicy: Always
         ports:
         - containerPort: 8501
@@ -41,5 +41,5 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 8501
-    nodePort: 30006
+    nodePort: 30006   # Change to LoadBalancer if using cloud
   type: NodePort
