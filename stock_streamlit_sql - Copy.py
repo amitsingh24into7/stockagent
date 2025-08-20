@@ -1,75 +1,9 @@
-# stock_ai.py
 import streamlit as st
 import sqlite3
 import pandas as pd
 import os
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
-
-# -------------------------------
-# 🔐 IMPORT DB CONNECTION (Supabase for Auth)
-# -------------------------------
-try:
-    from db.db_connection import get_db_connection, verify_password
-except Exception as e:
-    st.error("❌ Could not load database connection.")
-    st.code(str(e))
-    st.stop()
-
-# Load environment variables
-from dotenv import load_dotenv
-load_dotenv()
-
-# -------------------------------
-# 🔐 LOGIN CHECK
-# -------------------------------
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    st.title("🔐 Stock.AI - Login")
-    st.markdown("Please log in to access the financial analytics AI.")
-
-    username = st.text_input("📧 Email Address")
-    password = st.text_input("🔑 Password", type="password")
-    login_btn = st.button("🔓 Login")
-
-    if login_btn:
-        if not username or not password:
-            st.error("⚠️ Please fill in both fields.")
-        else:
-            try:
-                APP_SLUG = os.getenv("APP_SLUG", "stock-ai")  # Set in .env
-                with get_db_connection() as conn:
-                    with conn.cursor() as cur:
-                        cur.execute("""
-                            SELECT password_hash, valid_until, is_active
-                            FROM users
-                            WHERE username = %s AND app_slug = %s
-                        """, (username, APP_SLUG))
-                        row = cur.fetchone()
-
-                if not row:
-                    st.error("❌ User not found for this application.")
-                else:
-                    password_hash, valid_until, is_active = row
-                    from datetime import date
-
-                    if not is_active:
-                        st.error("❌ Account is inactive.")
-                    elif valid_until < date.today():
-                        st.error(f"📅 Your access expired on {valid_until}. Contact admin.")
-                    elif verify_password(password, password_hash):
-                        st.session_state.logged_in = True
-                        st.session_state.user_name = username
-                        st.session_state.current_page = "stock_ai"
-                        st.rerun()
-                    else:
-                        st.error("❌ Incorrect password.")
-            except Exception as e:
-                st.error("⚠️ System error. Please try again.")
-                st.exception(e)  # Remove in production
-    st.stop()  # Don't run the rest of the app
 
 # ------------------ Secure API Key from DB ------------------
 def get_api_key_from_db(conn, service="groq"):
@@ -84,7 +18,7 @@ def get_api_key_from_db(conn, service="groq"):
         return None
 
 
-# Connect to SQLite database (for stock data only)
+# Connect to SQLite database
 try:
     conn = sqlite3.connect("db/stock_data.db", check_same_thread=False)
 except Exception as e:
@@ -292,9 +226,9 @@ chain = prompt | llm
 
 # ------------------ Streamlit UI ------------------
 st.set_page_config(page_title="📈 Stock AI", layout="wide")
-st.title("📈 Stock.AI")
+st.title("Stock.AI")
 
-# Add Logout to Sidebar
+# Sidebar: Example selector
 with st.sidebar:
     st.subheader("Helpers")
     if "selected_example" not in st.session_state:
@@ -306,12 +240,6 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("👆 Click an example to autofill")
-
-    # 🔒 Logout
-    st.markdown("---")
-    if st.button("🚪 Logout", use_container_width=True):
-        st.session_state.clear()
-        st.rerun()
 
 # Input
 user_input = st.text_input("🧠 Ask a Query:", value=st.session_state.get("selected_example", ""))
