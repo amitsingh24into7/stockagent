@@ -26,7 +26,8 @@ spec:
           memory: "512Mi"
         limits:
           cpu: "1"
-          memory: "1Gi"---
+          memory: "1Gi"
+---
 apiVersion: v1
 kind: Service
 metadata:
