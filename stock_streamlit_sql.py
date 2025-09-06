@@ -85,10 +85,19 @@ def get_api_key_from_db(conn, service="groq"):
 
 
 # Connect to SQLite database (for stock data only)
+import psycopg2
+# --- PostgreSQL connection ---
 try:
-    conn = sqlite3.connect("db/stock_data.db", check_same_thread=False)
+    conn = psycopg2.connect(
+        host="192.168.0.110",          # or your DB host (e.g. "db-service" in Kubernetes)
+        port="5432",               # default Postgres port
+        dbname="stockdb",          # your database name
+        user="postgres",           # your DB username
+        password="yourpassword"    # your DB password
+    )
+    cursor = conn.cursor()
 except Exception as e:
-    st.error(f"❌ Failed to connect to database: {e}")
+    st.error(f"❌ Failed to connect to PostgreSQL database: {e}")
     st.stop()
 
 # Load Groq API key from database (not .env)

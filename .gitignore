@@ -4,9 +4,6 @@ venv/
 env/
 .env/
 
-# --- DB ---
-db/*.db          # ignore only .db files inside db/
-!db/db_connection.py   # but do NOT ignore db_connection.py
 
 # --- Python cache & build ---
 __pycache__/
