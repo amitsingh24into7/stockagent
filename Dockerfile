@@ -21,4 +21,9 @@ EXPOSE 8501
 
 # Run the Streamlit app
 #CMD ["streamlit", "run", "stock_streamlit_sql.py", "--server.enableCORS", "false"]
-CMD ["streamlit", "run", "stock_streamlit_sql.py", "--server.enableCORS", "false", "--server.port", "8501", "--server.headless", "true"]
+CMD ["streamlit", "run", "stock_streamlit_sql.py", \
+     "--server.enableCORS", "false", \
+     "--server.enableXsrfProtection", "false", \
+     "--server.headless", "true", \
+     "--server.port", "8501", \
+     "--server.address", "0.0.0.0"]
