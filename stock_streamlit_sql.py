@@ -92,8 +92,8 @@ try:
         host="192.168.0.110",          # or your DB host (e.g. "db-service" in Kubernetes)
         port="5432",               # default Postgres port
         dbname="stockdb",          # your database name
-        user="postgres",           # your DB username
-        password="yourpassword"    # your DB password
+        user="dbuser",           # your DB username
+        password="dbuser@123"    # your DB password
     )
     cursor = conn.cursor()
 except Exception as e:
