@@ -109,7 +109,7 @@ if not groq_api_key:
 
 # LLM setup
 try:
-    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama-3.3-70b-versatile")
+    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama-3.1-8b-instant")
 except Exception as e:
     st.error(f"❌ Failed to initialize LLM: {e}")
     st.stop()
