@@ -87,6 +87,10 @@ def get_api_key_from_db(conn, service="groq"):
 # Connect to SQLite database (for stock data only)
 import psycopg2
 # --- PostgreSQL connection ---
+
+# Load Groq API key from database (not .env)
+#groq_api_key = get_api_key_from_db(conn, "groq")
+#groq_api_key = "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"
 try:
     conn = psycopg2.connect(
         host="192.168.0.110",          # or your DB host (e.g. "db-service" in Kubernetes)
@@ -102,6 +106,7 @@ except Exception as e:
 
 # Load Groq API key from database (not .env)
 groq_api_key = get_api_key_from_db(conn, "groq")
+st.success(groq_api_key)
 
 if not groq_api_key:
     st.error("❌ No Groq API key found in database. Please add it to the `api_keys` table.")
