@@ -14,7 +14,7 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 conn = sqlite3.connect("db/stock_data.db")
 
 # Set up LLM
-llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama3-8b-8192")
+llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama-3.3-70b-versatile")
 
 # Prompt Template
 prompt_template = """

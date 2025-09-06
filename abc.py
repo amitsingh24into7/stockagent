@@ -23,7 +23,7 @@ class State(TypedDict):
 
 # Step 1: Generate SQL from user question
 def write_query(state: State) -> State:
-    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama3-8b-8192")
+    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama-3.3-70b-versatile")
     user_question = state["messages"][-1].content
     prompt = f"""You are working with SQLite.
 
@@ -51,7 +51,7 @@ def execute_query(state: State) -> State:
 
 # Step 3: Generate Natural Language Answer
 def generate_answer(state: State) -> State:
-    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama3-8b-8192")
+    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama-3.3-70b-versatile")
     question = state["messages"][-1].content
     sql_query = state["sql_query"]
     result = state["sql_result"]

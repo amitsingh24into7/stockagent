@@ -15,7 +15,7 @@ from langchain.chat_models import init_chat_model
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
 
-llm = init_chat_model("llama3-8b-8192", model_provider="groq")
+llm = init_chat_model("llama-3.3-70b-versatile", model_provider="groq")
 
 db = SQLDatabase.from_uri("sqlite:///db/stock_data.db")
 

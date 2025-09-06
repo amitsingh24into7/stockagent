@@ -21,7 +21,7 @@ from langchain.chains.sql_database.prompt import SQL_PROMPTS
 #print(list(SQL_PROMPTS))
 from langchain.chat_models import init_chat_model
 
-llm = init_chat_model("llama3-8b-8192", model_provider="groq")
+llm = init_chat_model("llama-3.3-70b-versatile", model_provider="groq")
 
 from langchain.chains import create_sql_query_chain
 

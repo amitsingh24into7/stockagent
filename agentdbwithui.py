@@ -16,7 +16,7 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 @st.cache_resource
 def setup_agent():
     db = SQLDatabase.from_uri("sqlite:///db/stock_data.db")
-    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama3-8b-8192")
+    llm = ChatGroq(temperature=0, groq_api_key=groq_api_key, model_name="llama-3.3-70b-versatile")
     toolkit = SQLDatabaseToolkit(db=db, llm=llm)
     agent = create_sql_agent(llm=llm, toolkit=toolkit, verbose=True)
     return agent, db, llm
