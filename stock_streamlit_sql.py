@@ -93,7 +93,7 @@ try:
     conn = psycopg2.connect(
         host="192.168.0.110",          # or your DB host (e.g. "db-service" in Kubernetes)
         port="5432",               # default Postgres port
-        dbname="stockdb",          # your database name
+        dbname="stockagentdb",          # your database name
         user="dbuser",           # your DB username
         password="dbuser@123"    # your DB password
     )
